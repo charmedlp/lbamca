@@ -186,6 +186,14 @@ const musicBoxes = computed(() => {
     5,
   ];
 });
+
+const completed = computed(
+  () =>
+    gameStore.musicBoxesGames.filter((game) => game.position != null).length == 15 &&
+    gameStore.guessingGames.filter((game) => game.position != null && game.idGame != null).length == 3 &&
+    gameStore.singingGames.filter((game) => game.position != null && game.idGame == null).length == 3 &&
+    gameStore.specialGames.filter((game) => game.position != null && game.idGame != null).length == 3,
+);
 </script>
 
 <template>
@@ -618,6 +626,9 @@ const musicBoxes = computed(() => {
             </div>
           </div>
         </div>
+      </div>
+      <div>
+        <button v-if="completed" @click="">Envoyer</button>
       </div>
     </div>
   </div>
