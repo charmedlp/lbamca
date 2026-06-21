@@ -42,10 +42,10 @@ const props = defineProps<{
 /* .music-boxes-content.game-presentation {
   padding-top: 4rem;
 } */
-
+/* 
 .music-box {
   cursor: pointer;
-}
+} */
 
 .slide-up-enter-active,
 .slide-up-leave-active {
