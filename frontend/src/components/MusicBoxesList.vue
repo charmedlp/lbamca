@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import MusicBox from "./MusicBox.vue";
 import { useGameStore } from "../stores/game";
-import { ref } from "vue";
 
 const gameStore = useGameStore();
 
