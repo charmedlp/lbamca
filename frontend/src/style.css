@@ -16,6 +16,8 @@
 body {
   margin: 0;
   box-sizing: border-box;
+  overflow-x: hidden;
+  background-color: #01313f;
 }
 
 h1 {
@@ -81,9 +83,24 @@ select {
   border-radius: 5px;
 }
 
+button {
+  padding: 1rem;
+  background: none;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  font-family: FuturaND;
+  color: goldenrod;
+  border: 10px ridge goldenrod;
+  transition: background-color 0.25s ease-in-out;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #000000aa;
+}
+
 #app {
   width: 100vw;
-  overflow: hidden;
   margin: 0 auto;
   padding: 0rem;
   font-weight: normal;

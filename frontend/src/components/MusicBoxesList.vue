@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import MusicBox from "./MusicBox.vue";
 import { useGameStore } from "../stores/game";
-import { ref } from "vue";
 
 const gameStore = useGameStore();
 
@@ -43,10 +42,10 @@ const props = defineProps<{
 /* .music-boxes-content.game-presentation {
   padding-top: 4rem;
 } */
-
+/* 
 .music-box {
   cursor: pointer;
-}
+} */
 
 .slide-up-enter-active,
 .slide-up-leave-active {

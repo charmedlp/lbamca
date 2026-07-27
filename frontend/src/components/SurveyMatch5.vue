@@ -132,6 +132,20 @@ const submitSurvey = async () => {
   }
 };
 
+function onClick(games: any[], gameId: number, maxPositions: number) {
+  const game = games.find((g) => g.idGame === gameId);
+  if (game) {
+    applyPositionChange(games, gameId, game.position != null ? null : games.filter((g) => g.position != null && g.type == game.type).length + 1, maxPositions);
+  }
+  // if (game) {
+  //   if (game.position != null) {
+  //     game.position = null;
+  //   } else if (games.filter((g) => g.position != null && g.type == game.type).length < maxPositions) {
+  //     game.position = games.filter((g) => g.position != null && g.type == game.type).length + 1;
+  //   }
+  // }
+}
+
 function applyPositionChange(games: any[], gameId: number, newPosition: number | null, maxPositions: number) {
   const game = games.find((g) => g.idGame === gameId);
   if (!game) return;
@@ -238,6 +252,16 @@ const musicBoxes = computed(() => {
     5,
   ];
 });
+
+const completed = computed(() => {
+  return (
+    gameStore.musicBoxesGames.filter((game) => game.position != null).length == 15 &&
+    gameStore.guessingGames.filter((game) => game.position != null && game.idGame != null).length == 3 &&
+    gameStore.namingGames.filter((game) => game.position != null && game.idGame != null).length == 3 &&
+    gameStore.singingGames.filter((game) => game.position != null && game.idGame != null).length == 3 &&
+    gameStore.specialGames.filter((game) => game.position != null && game.idGame != null).length == 3
+  );
+});
 </script>
 
 <template>
@@ -281,6 +305,7 @@ const musicBoxes = computed(() => {
                   draggable="true"
                   @dragstart="onDragStart(gameStore.musicBoxesGames, game.idGame, 5, $event)"
                   @dragend="onDragEnd"
+                  @click="onClick(gameStore.musicBoxesGames, game.idGame, 5)"
                 >
                 </MusicBox>
                 <select :value="game.position" name="" id="" @change="updateGamePositions(gameStore.musicBoxesGames, game.idGame, $event, 5)">
@@ -684,7 +709,9 @@ const musicBoxes = computed(() => {
           </div>
         </div>
       </div>
-      <button class="send-button" @click="submitSurvey">Envoyer</button>
+      <div class="submit-survey">
+        <button v-if="completed" @click="">Envoyer</button>
+      </div>
     </div>
   </div>
 </template>
@@ -892,6 +919,10 @@ button:hover {
   grid-template-columns: 1rem 1fr;
   gap: 0.5rem;
   width: 100%;
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  height: max-content;
 }
 
 .position-numbers {
@@ -930,6 +961,12 @@ button:hover {
 .selected-music-box.drag-over {
   border-color: goldenrod;
   background-color: rgba(218, 165, 32, 0.1);
+}
+
+.submit-survey {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
 }
 
 /* Transitions pour TransitionGroup
