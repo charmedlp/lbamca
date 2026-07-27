@@ -5,6 +5,13 @@ import MusicBox from "./MusicBox.vue";
 import { useGameStore } from "../stores/game";
 const gameStore = useGameStore();
 
+const signInCode = ref("");
+const signInCodeTemp = ref("");
+const authorizedCodes = ["7373", "7673", "5274", "5346", "3225", "4273"];
+const submitting = ref(false);
+const submitError = ref("");
+const submitted = ref(false);
+
 function onBeforeLeave(el: Element) {
   const htmlEl = el as HTMLElement;
   htmlEl.style.top = htmlEl.offsetTop + "px";
@@ -79,6 +86,51 @@ function isDragOver(games: any[], position: number, gameType?: number) {
   if (gameType != null && dragOverSlot.value.gameType !== gameType) return false;
   return true;
 }
+
+function namesByPosition(games: any[], prefix: string, maxPositions: number, type: number | null = null) {
+  return Object.fromEntries(
+    Array.from({ length: maxPositions }, (_, i) => [
+      `${prefix}-${type ? `type${type}-` : ""}${i + 1}`,
+      games.find((game) => game.type === type && game.position === i + 1)?.name ?? "",
+    ]),
+  );
+}
+
+const submitSurvey = async () => {
+  submitting.value = true;
+  submitError.value = "";
+
+  const results = {
+    timestamp: new Date().toISOString(),
+    code: signInCode.value,
+    ...namesByPosition(gameStore.musicBoxesGames, "musicBoxes", 5, 1),
+    ...namesByPosition(gameStore.musicBoxesGames, "musicBoxes", 5, 2),
+    ...namesByPosition(gameStore.musicBoxesGames, "musicBoxes", 5, 3),
+    ...namesByPosition(gameStore.guessingGames, "guessing", 3),
+    ...namesByPosition(gameStore.singingGames, "singing", 3),
+    ...namesByPosition(gameStore.namingGames, "naming", 3),
+    ...namesByPosition(gameStore.specialGames, "special", 3),
+  };
+
+  try {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbzx12WnL6gkbGenRcTfzc8tGdW-Ud2_nL3O4kHGxyUcH0pGKllZInZFw191igNgKfIM/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(results),
+    });
+
+    submitted.value = true;
+    console.log(response);
+  } catch (error) {
+    console.error("Erreur lors de la soumission:", error);
+    submitError.value = "Une erreur est survenue. Veuillez réessayer.";
+  } finally {
+    submitting.value = false;
+  }
+};
 
 function applyPositionChange(games: any[], gameId: number, newPosition: number | null, maxPositions: number) {
   const game = games.find((g) => g.idGame === gameId);
@@ -190,7 +242,20 @@ const musicBoxes = computed(() => {
 
 <template>
   <div class="survey-container">
-    <div class="survey-content">
+    <div class="sign-in" v-if="!signInCode || !authorizedCodes.includes(signInCode)">
+      <div class="warning-popover" v-if="signInCode && !authorizedCodes.includes(signInCode)">
+        <h2>Code invalide</h2>
+        <button class="submit-name" @click="signInCode = ''">Réessayer</button>
+      </div>
+      <div class="sign-in-content">
+        <h2>Entrez votre code</h2>
+        <div class="register-form">
+          <input class="name-input" type="text" inputmode="numeric" maxlength="4" v-model="signInCodeTemp" @keydown.enter="signInCode = signInCodeTemp" />
+          <button class="submit-name" @click="signInCode = signInCodeTemp">Envoyer</button>
+        </div>
+      </div>
+    </div>
+    <div class="survey-content" v-else>
       <div class="survey-header">
         <h1>La Boîte à Musique V</h1>
         <h4>VOUS choisissez les jeux qui composeront ce match!</h4>
@@ -619,6 +684,7 @@ const musicBoxes = computed(() => {
           </div>
         </div>
       </div>
+      <button class="send-button" @click="submitSurvey">Envoyer</button>
     </div>
   </div>
 </template>
@@ -647,10 +713,85 @@ h2 {
   margin-bottom: 2rem;
 } */
 
-.survey-content {
+.survey-container {
+  height: 100%;
+}
+
+.survey-content,
+.sign-in {
+  display: flex;
+  height: 100%;
+}
+
+.sign-in h2 {
+  margin-bottom: 1rem;
+}
+
+.register-form {
+  display: flex;
+  flex-wrap: wrap;
+  height: min-content;
+  gap: 1rem;
+}
+
+.name-input,
+.submit-name {
+  width: 100%;
+}
+
+.name-input {
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  /* text-transform: uppercase; */
+  font-family: FuturaND;
+  background-color: #000000aa;
+  box-shadow: 0 0 5px 5px #000000aa;
+  color: white;
+  border: 2px solid #00000000;
+  border-radius: 10px;
+  outline: none;
+}
+
+.name-input:focus {
+  border: 2px solid goldenrod;
+}
+
+button {
+  padding: 1rem;
+  background: none;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  font-family: FuturaND;
+  color: goldenrod;
+  border: 10px ridge goldenrod;
+  transition: background-color 0.25s ease-in-out;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #000000aa;
+}
+
+.send-button {
+  margin-top: 2rem;
+}
+
+.sign-in-content {
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 100%;
+}
+
+.warning-popover {
+  background-color: #000000dd;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 8rem);
+  height: calc(100% - 8rem);
+  z-index: 10;
+  padding: 4rem;
 }
 
 .survey-questions {

@@ -88,8 +88,13 @@ select {
   padding: 0rem;
   font-weight: normal;
   background-image: url("./assets/images/Tentative aP.jpg");
-  background-size: contain;
-  
+  /* Au moins la pleine largeur, jamais moins que la largeur réelle de l'image */
+  background-size: 100% auto;
+  background-size: max(100%, 1920px) auto;
+  background-repeat: repeat-y;
+  background-position: top center;
+  min-height: 100vh;
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -100,6 +105,9 @@ select {
   height: calc(100% - 2rem);
   padding: 1rem;
   max-width: 1400px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 #header-logo {
@@ -114,6 +122,11 @@ select {
 .survey-container {
   width: 100%;
   max-width: 1400px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .survey-content {
@@ -123,6 +136,7 @@ select {
   max-height: 100%;
   height: calc(max-content - 50px);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   transition: all 0.5s ease-in-out;
