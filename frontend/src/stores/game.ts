@@ -46,7 +46,7 @@ export const useGameStore = defineStore("game", {
       {
         idGame: 8,
         gameName: "La Chanson oubliée",
-        description: "Identifier l'artiste derrière une chanson peu connue",
+        description: "Identifier l'artiste connu derrière une chanson peu connue",
         matchesPlayed: [1],
         type: 1,
         position: null,
@@ -279,7 +279,8 @@ export const useGameStore = defineStore("game", {
       {
         idGame: 15,
         gameName: "Dans le style de",
-        description: "Trouver la chanson que son coéquipier essaie de faire deviner en n'utilisant qu'un seul moyen pigé au hasard (un son précis, un mime, une imitation, etc.)",
+        description:
+          "Trouver la chanson que son coéquipier essaie de faire deviner en n'utilisant qu'un seul moyen pigé au hasard (un son précis, un mime, une imitation, etc.)",
         matchesPlayed: [2, 4],
         position: null,
       },
@@ -309,7 +310,7 @@ export const useGameStore = defineStore("game", {
       {
         idGame: 48,
         gameName: "Qu'est-ce que tu me chantes?",
-        description: "Trouver la chanson que son coéquipier chante a cappella, sans la connaître, en lisant un karaoké que l'équipe ne voit pas",
+        description: "Trouver la chanson que son coéquipier chante a cappella en lisant un karaoké que l'équipe ne voit pas",
         matchesPlayed: [4],
         position: null,
       },
@@ -348,7 +349,7 @@ export const useGameStore = defineStore("game", {
       {
         idGame: 20,
         gameName: "La Lecture musicale",
-        description: "Berner l'autre équipe en lisant les paroles d'une chanson pour éviter qu'elle ne la reconnaisse",
+        description: "Berner l'autre équipe en lisant les paroles d'une chanson de manière à ce qu'elle ne la reconnaisse pas",
         matchesPlayed: [1],
         position: null,
       },
@@ -362,7 +363,7 @@ export const useGameStore = defineStore("game", {
       {
         idGame: 49,
         gameName: "Le Roi de la montagne",
-        description: "Identifier des extraits musicaux avant les autres joueurs pour devenir le roi de la montagne, et espérer l'être après le dernier extrait",
+        description: "Identifier des extraits musicaux avant les autres joueurs pour devenir roi, et espérer être le dernier roi de la manche",
         matchesPlayed: [4],
         position: null,
       },
