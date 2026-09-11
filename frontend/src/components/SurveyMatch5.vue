@@ -91,7 +91,7 @@ function namesByPosition(games: any[], prefix: string, maxPositions: number, typ
   return Object.fromEntries(
     Array.from({ length: maxPositions }, (_, i) => [
       `${prefix}-${type ? `type${type}-` : ""}${i + 1}`,
-      games.find((game) => game.type === type && game.position === i + 1)?.name ?? "",
+      games.find((game) => game.type == type && game.position == i + 1)?.gameName ?? "",
     ]),
   );
 }
@@ -115,15 +115,14 @@ const submitSurvey = async () => {
   try {
     const response = await fetch("https://script.google.com/macros/s/AKfycbzx12WnL6gkbGenRcTfzc8tGdW-Ud2_nL3O4kHGxyUcH0pGKllZInZFw191igNgKfIM/exec", {
       method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(results),
     });
 
-    submitted.value = true;
-    console.log(response);
+    if (response.ok) {
+      submitted.value = true;
+    } else {
+      submitError.value = "Une erreur est survenue. Veuillez réessayer.";
+    }
   } catch (error) {
     console.error("Erreur lors de la soumission:", error);
     submitError.value = "Une erreur est survenue. Veuillez réessayer.";
@@ -266,11 +265,23 @@ const completed = computed(() => {
 
 <template>
   <div class="survey-container">
-    <div class="sign-in" v-if="!signInCode || !authorizedCodes.includes(signInCode)">
-      <div class="warning-popover" v-if="signInCode && !authorizedCodes.includes(signInCode)">
+    <div class="warning-popover" v-if="(signInCode && !authorizedCodes.includes(signInCode)) || submitted || submitError || submitting">
+      <template v-if="signInCode && !authorizedCodes.includes(signInCode)">
         <h2>Code invalide</h2>
         <button class="submit-name" @click="signInCode = ''">Réessayer</button>
-      </div>
+      </template>
+      <template v-else-if="submitted">
+        <h2>Votre sélection a bien été envoyée!</h2>
+      </template>
+      <template v-else-if="submitError">
+        <h2>Une erreur s'est produite. Veuillez contacter l'administrateur.</h2>
+        <button class="submit-name" @click="submitSurvey()">Réessayer</button>
+      </template>
+      <template v-else-if="submitting">
+        <h2>Envoi en cours...</h2>
+      </template>
+    </div>
+    <div class="sign-in" v-if="!signInCode || !authorizedCodes.includes(signInCode)">
       <div class="sign-in-content">
         <h2>Entrez votre code</h2>
         <div class="register-form">
@@ -368,6 +379,7 @@ const completed = computed(() => {
                   draggable="true"
                   @dragstart="onDragStart(gameStore.musicBoxesGames, game.idGame, 5, $event)"
                   @dragend="onDragEnd"
+                  @click="onClick(gameStore.musicBoxesGames, game.idGame, 5)"
                 >
                 </MusicBox>
                 <select :value="game.position" name="" id="" @change="updateGamePositions(gameStore.musicBoxesGames, game.idGame, $event, 5)">
@@ -430,6 +442,7 @@ const completed = computed(() => {
                   draggable="true"
                   @dragstart="onDragStart(gameStore.musicBoxesGames, game.idGame, 5, $event)"
                   @dragend="onDragEnd"
+                  @click="onClick(gameStore.musicBoxesGames, game.idGame, 5)"
                 >
                 </MusicBox>
                 <select :value="game.position" name="" id="" @change="updateGamePositions(gameStore.musicBoxesGames, game.idGame, $event, 5)">
@@ -490,6 +503,7 @@ const completed = computed(() => {
                   draggable="true"
                   @dragstart="onDragStart(gameStore.guessingGames, game.idGame, 3, $event)"
                   @dragend="onDragEnd"
+                  @click="onClick(gameStore.guessingGames, game.idGame, 3)"
                 >
                 </MusicBox>
                 <select :value="game.position" name="" id="" @change="updateGamePositions(gameStore.guessingGames, game.idGame, $event, 3)">
@@ -548,6 +562,7 @@ const completed = computed(() => {
                   draggable="true"
                   @dragstart="onDragStart(gameStore.namingGames, game.idGame, 3, $event)"
                   @dragend="onDragEnd"
+                  @click="onClick(gameStore.namingGames, game.idGame, 3)"
                 >
                 </MusicBox>
                 <select :value="game.position" name="" id="" @change="updateGamePositions(gameStore.namingGames, game.idGame, $event, 3)">
@@ -606,6 +621,7 @@ const completed = computed(() => {
                   draggable="true"
                   @dragstart="onDragStart(gameStore.singingGames, game.idGame, 3, $event)"
                   @dragend="onDragEnd"
+                  @click="onClick(gameStore.singingGames, game.idGame, 3)"
                 >
                 </MusicBox>
                 <select :value="game.position" name="" id="" @change="updateGamePositions(gameStore.singingGames, game.idGame, $event, 3)">
@@ -664,6 +680,7 @@ const completed = computed(() => {
                   draggable="true"
                   @dragstart="onDragStart(gameStore.specialGames, game.idGame, 3, $event)"
                   @dragend="onDragEnd"
+                  @click="onClick(gameStore.specialGames, game.idGame, 3)"
                 >
                 </MusicBox>
                 <select :value="game.position" name="" id="" @change="updateGamePositions(gameStore.specialGames, game.idGame, $event, 3)">
@@ -710,7 +727,7 @@ const completed = computed(() => {
         </div>
       </div>
       <div class="submit-survey">
-        <button v-if="completed" @click="">Envoyer</button>
+        <button v-if="completed" @click="submitSurvey()">Envoyer</button>
       </div>
     </div>
   </div>
@@ -750,7 +767,8 @@ h2 {
   height: 100%;
 }
 
-.sign-in h2 {
+.sign-in h2,
+.warning-popover h2 {
   margin-bottom: 1rem;
 }
 
@@ -812,7 +830,7 @@ button:hover {
 
 .warning-popover {
   background-color: #000000dd;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: calc(100% - 8rem);
