@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import MusicBoxesList from "./MusicBoxesList.vue";
 import MusicBox from "./MusicBox.vue";
 import { useGameStore } from "../stores/game";
@@ -11,6 +11,15 @@ const authorizedCodes = ["7373", "7673", "5274", "5346", "3225", "4273"];
 const submitting = ref(false);
 const submitError = ref("");
 const submitted = ref(false);
+const isSignedIn = computed(() => authorizedCodes.includes(signInCode.value));
+
+// Positions sauvegardées dans le localStorage, séparément pour chaque code de connexion
+watch(signInCode, (code) => {
+  if (isSignedIn.value) gameStore.loadPositions(code);
+});
+gameStore.$subscribe(() => {
+  if (isSignedIn.value) gameStore.savePositions(signInCode.value);
+});
 
 function onBeforeLeave(el: Element) {
   const htmlEl = el as HTMLElement;

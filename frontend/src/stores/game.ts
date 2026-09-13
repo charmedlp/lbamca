@@ -8,6 +8,8 @@ export interface GameState {
   specialGames: any[];
 }
 
+const positionsStorageKey = (userCode: string) => `gamePositions:${userCode}`;
+
 export const useGameStore = defineStore("game", {
   state: (): GameState => ({
     musicBoxesGames: [
@@ -15,7 +17,7 @@ export const useGameStore = defineStore("game", {
         idGame: 2,
         gameName: "Tout un cinéma",
         description: "Reconnaître le film ou la série duquel est tiré l'extrait musical",
-        matchesPlayed: [1, 4],
+        matchesPlayed: [1],
         type: 1,
         position: null,
       },
@@ -23,7 +25,7 @@ export const useGameStore = defineStore("game", {
         idGame: 3,
         gameName: "L'Orchestre symbolique",
         description: "Déchiffrer les symboles pour trouver le titre d'une chanson",
-        matchesPlayed: [1, 2, 4],
+        matchesPlayed: [1, 2],
         type: 1,
         position: null,
       },
@@ -369,6 +371,34 @@ export const useGameStore = defineStore("game", {
       },
     ],
   }),
-  getters: {},
-  actions: {},
+  getters: {
+    allGames: (state) => [...state.musicBoxesGames, ...state.guessingGames, ...state.singingGames, ...state.namingGames, ...state.specialGames],
+  },
+  actions: {
+    // Remplace les positions actuelles par celles sauvegardées pour cet utilisateur (paires idGame → position)
+    loadPositions(userCode: string) {
+      let savedPositions: Record<string, unknown> = {};
+      try {
+        savedPositions = JSON.parse(localStorage.getItem(positionsStorageKey(userCode)) ?? "{}") ?? {};
+      } catch {
+        // localStorage indisponible ou contenu invalide : on repart de zéro
+      }
+
+      for (const game of this.allGames) {
+        const position = savedPositions[game.idGame];
+        game.position = typeof position === "number" ? position : null;
+      }
+    },
+    savePositions(userCode: string) {
+      const positions: Record<number, number> = {};
+      for (const game of this.allGames) {
+        if (game.position != null) positions[game.idGame] = game.position;
+      }
+      try {
+        localStorage.setItem(positionsStorageKey(userCode), JSON.stringify(positions));
+      } catch {
+        // localStorage indisponible (navigation privée, quota atteint, etc.)
+      }
+    },
+  },
 });
