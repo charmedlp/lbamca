@@ -774,6 +774,7 @@ h2 {
 .sign-in {
   display: flex;
   height: 100%;
+  padding: 1rem;
 }
 
 .sign-in h2,
