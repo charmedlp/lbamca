@@ -203,7 +203,7 @@ button:hover {
   transform: translateX(30px);
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   #app {
     padding: 0;
   }

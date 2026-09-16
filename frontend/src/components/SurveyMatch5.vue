@@ -1026,5 +1026,28 @@ button:hover {
 } */
 
 @media (max-width: 500px) {
+  .question-elements {
+    grid-template-columns: 1fr 5px 1fr;
+  }
+
+  .music-box-element {
+    width: 100%;
+    grid-template-rows: min-content 0.25rem 1fr;
+  }
+
+  .selected-music-box {
+    width: 100%;
+  }
+
+  /* .music-box-element select {
+    margin-top: calc(100% / 13.45 * -1);
+  } */
+}
+
+@media (max-width: 400px) {
+  p,
+  label {
+    font-size: 0.75rem;
+  }
 }
 </style>
